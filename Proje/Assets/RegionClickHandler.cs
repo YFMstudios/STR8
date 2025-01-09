@@ -49,7 +49,7 @@ public class RegionClickHandler : MonoBehaviour, IPointerClickHandler
 
     void Start()
     {
-        createDefaultPanel();
+        //createDefaultPanel();
         createDefaultPanel2();
         Renderer renderer = GetComponent<Renderer>();
     }

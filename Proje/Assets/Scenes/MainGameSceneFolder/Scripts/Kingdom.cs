@@ -49,12 +49,12 @@ public class Kingdom : MonoBehaviour
     {
         // Bayrak �zelli�i i�in gerekli sprite'lar �nce tan�mlanmal�d�r
 
-        Sprite akhadzriaFlag = Resources.Load<Sprite>("akhadzriaFlag");
-        Sprite alfgardFlag = Resources.Load<Sprite>("alfgardFlag");
-        Sprite arianopolFlag = Resources.Load<Sprite>("arianopolFlag");
-        Sprite dhamuronFlag = Resources.Load<Sprite>("dhamuronFlag");
-        Sprite lexionFlag = Resources.Load<Sprite>("lexionFlag");
-        Sprite zephyrionFlag = Resources.Load<Sprite>("zephyrionFlag");
+        Sprite akhadzriaFlag = Resources.Load<Sprite>("Flags/akhadzriaFlag");
+        Sprite alfgardFlag = Resources.Load<Sprite>("Flags/alfgardFlag");
+        Sprite arianopolFlag = Resources.Load<Sprite>("Flags/arianopolFlag");
+        Sprite dhamuronFlag = Resources.Load<Sprite>("Flags/dhamuronFlag");
+        Sprite lexionFlag = Resources.Load<Sprite>("Flags/lexionFlag");
+        Sprite zephyrionFlag = Resources.Load<Sprite>("Flags/zephyrionFlag");
 
         kingdoms[0] = new Kingdom("Arianopol", 0, 7500, 3500, 7500, 5500, 3500, 0, 0, arianopolFlag);
         kingdoms[1] = new Kingdom("Alfgard", 0, 75000, 35000, 75000, 55000, 35000, 0, 0, alfgardFlag);

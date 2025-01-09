@@ -1012,7 +1012,7 @@ public class BuildBuilder : MonoBehaviour
             lab = gameObject.AddComponent<Lab>();
             TextMeshProUGUI buttonText = buildLabButton.GetComponentInChildren<TextMeshProUGUI>();
 
-            if (checkResources(lab) && Sawmill.buildLevel >= 2) // Kaynaklar yeterliyse, keresteci seviye 2 ise
+            if (checkResources(lab) /*&& Sawmill.buildLevel >= 2*/) // Kaynaklar yeterliyse, keresteci seviye 2 ise
             {
                 // Kaynaklarý azalt
                 Kingdom.myKingdom.GoldAmount -= lab.buildGoldCost;
@@ -1284,7 +1284,7 @@ public class BuildBuilder : MonoBehaviour
             warehouse = gameObject.AddComponent<Warehouse>();
             TextMeshProUGUI buttonText = buildWarehouseButton.GetComponentInChildren<TextMeshProUGUI>();
 
-            if (checkResources(warehouse) && Farm.buildLevel >= 1 && Sawmill.buildLevel >= 1 && StonePit.buildLevel >= 1 && Blacksmith.buildLevel >= 1)
+            if (checkResources(warehouse) /*&& Farm.buildLevel >= 1 && Sawmill.buildLevel >= 1 && StonePit.buildLevel >= 1 && Blacksmith.buildLevel >= 1*/)
             {
                 // Kaynaklarý Azalt
                 Kingdom.myKingdom.GoldAmount -= warehouse.buildGoldCost;
