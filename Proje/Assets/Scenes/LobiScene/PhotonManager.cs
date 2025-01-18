@@ -173,13 +173,19 @@ public new void OnDisable()
     string fullRoomName = $"{roomName}_{roomNumber}";
 
     RoomOptions roomOptions = new RoomOptions
+{
+    MaxPlayers = 6,           // Maksimum 6 oyuncu
+    IsVisible = true,         // Oda herkes tarafından görülebilir
+    IsOpen = true,            // Oda yeni oyunculara açık
+    PlayerTtl = 0,            // Oyuncu odadan çıkar çıkmaz bilgileri sıfırlanır
+    EmptyRoomTtl = 300000,    // Oda boş kaldıktan sonra 5 dakika açık kalır
+    CustomRoomProperties = new ExitGames.Client.Photon.Hashtable
     {
-        MaxPlayers = 6,          // Maksimum 6 oyuncu
-        IsVisible = true,        // Oda herkes tarafından görülebilir
-        IsOpen = true,           // Oda yeni oyunculara açık
-        PlayerTtl = 0,           // Oyuncu odadan çıkar çıkmaz bilgileri sıfırlanır
-        EmptyRoomTtl = 300000    // Oda boş kaldıktan sonra 5 dakika açık kalır
-    };
+        { "war", null }       // 'war' bilgisi oda özelliklerine ekleniyor (başlangıçta null olarak)
+    },
+    CustomRoomPropertiesForLobby = new string[] { "war" } // lobby'de 'war' bilgisini görmek için
+};
+
 
     PhotonNetwork.CreateRoom(fullRoomName, roomOptions);
     Debug.Log($"Oda oluşturma isteği gönderildi: {fullRoomName}");
@@ -408,5 +414,52 @@ for (int i = 0; i < cachedRoomList.Count; i++)
         Debug.LogWarning("roomCreationPanel atanmamış!");
     }
 }
+
+// Buton ile çağrılacak, bağlantıyı yeniden başlatıp oda listesini güncelleyen fonksiyon
+public void ReconnectAndRefreshRoomList()
+{
+    StartCoroutine(ReconnectAndRefresh());
+}
+
+private IEnumerator ReconnectAndRefresh()
+{
+    // Kullanıcıyı önce bağlantıdan çıkar
+    if (PhotonNetwork.IsConnected)
+    {
+        Debug.Log("Photon bağlantısı kesiliyor...");
+        PhotonNetwork.Disconnect();
+    }
+
+    // Bağlantının tamamen kesilmesini bekle
+    while (PhotonNetwork.IsConnected)
+    {
+        yield return null;
+    }
+
+    Debug.Log("Photon bağlantısı yeniden başlatılıyor...");
+    // Photon'a yeniden bağlan
+    PhotonNetwork.ConnectUsingSettings();
+    PhotonNetwork.GameVersion = "1.0";
+
+    // Bağlantının yeniden kurulmasını bekle
+    while (!PhotonNetwork.IsConnectedAndReady)
+    {
+        yield return null;
+    }
+
+    Debug.Log("Photon'a yeniden bağlanıldı ve lobiye katılınıyor...");
+    PhotonNetwork.JoinLobby();
+
+    // Lobiye katılmayı bekle
+    while (!PhotonNetwork.InLobby)
+    {
+        yield return null;
+    }
+
+    Debug.Log("Oda listesi yenileniyor...");
+    // Oda listesini yenile
+    RefreshRoomList();
+}
+
 
 }

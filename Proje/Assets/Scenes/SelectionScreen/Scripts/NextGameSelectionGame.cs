@@ -2,18 +2,63 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Photon.Pun;
-using Photon.Realtime;  // PhotonPlayer yerine Player'ı kullanıyoruz
+using Photon.Realtime;
 using ExitGames.Client.Photon;
-using UnityEngine.SceneManagement;  // PhotonHashtable'ı kullanıyoruz
+using UnityEngine.SceneManagement;
 
 public class NextGame : MonoBehaviourPunCallbacks
 {
-    private string currentPlayerName; // Mevcut oyuncunun ismi
     private string opponentName; // Rakibin ismi
+
+    void Update()
+    {
+        if (PhotonNetwork.CurrentRoom != null)
+        {
+            // Oda bilgileri mevcut
+            if (PhotonNetwork.CurrentRoom.CustomProperties.ContainsKey("war"))
+            {
+                ExitGames.Client.Photon.Hashtable warInfo = (ExitGames.Client.Photon.Hashtable)PhotonNetwork.CurrentRoom.CustomProperties["war"];
+                
+                if (warInfo != null)
+                {
+                    string warOpponentName = warInfo.ContainsKey("opponentName") ? (string)warInfo["opponentName"] : null;
+                    Debug.Log("War Bilgileri - Opponent Name: " + warOpponentName);
+
+                    if (warOpponentName != null && warOpponentName == PhotonNetwork.LocalPlayer.NickName)
+                    {
+                        Debug.Log("Eşleşme bulundu! Kendi isminiz war bilgisinde bulundu.");
+                        PhotonNetwork.Disconnect();
+                        GoToWarScene();
+                    }
+                    else
+                    {
+                        Debug.Log("Eşleşme bulunamadı. OpponentName: " + warOpponentName + ", LocalPlayer: " + PhotonNetwork.LocalPlayer.NickName);
+                    }
+                }
+                else
+                {
+                    Debug.LogError("War bilgisi geçerli değil.");
+                }
+            }
+            else
+            {
+                // War bilgisi yoksa yeni ekleyelim
+                Debug.Log("'war' bilgisi mevcut değil, yeni ekleniyor...");
+                SetWarInfo(""); // Boş bir opponentName ile başlatıyoruz
+            }
+        }
+        else
+        {
+            Debug.LogError("Oda mevcut değil.");
+        }
+    }
 
     // Butona tıklandığında çalışacak olan fonksiyon
     public void goWarScene()
     {
+        // Debug: Single-player kontrolü yapılırken
+        Debug.Log("Single-player kontrolü başlatılıyor...");
+
         // Öncelikle Single-player kontrolü yapılır
         if (ScreenTransitions2.ScreenNavigator.previousScreen == "Simple" ||
             ScreenTransitions2.ScreenNavigator.previousScreen == "Mid" ||
@@ -40,84 +85,44 @@ public class NextGame : MonoBehaviourPunCallbacks
             return; // opponentName null ise fonksiyonu erken sonlandırıyoruz
         }
 
-        // Mevcut oyuncunun ismini alıyoruz
-        currentPlayerName = PhotonNetwork.LocalPlayer.CustomProperties.ContainsKey("PlayerName")
-            ? PhotonNetwork.LocalPlayer.CustomProperties["PlayerName"].ToString()
-            : "Oyuncu Adı Yok";
-
-        Debug.Log("Current Player Name (Saldıran Kişi): " + currentPlayerName);
+        // Oda bilgilerine war özelliğini opponentName ile ekliyoruz
+        Debug.Log("War bilgileri odada güncelleniyor...");
+        SetWarInfo(opponentName);
 
         // War durumu her iki oyuncu için true olarak ayarlanıyor
-        SetWarIsOnline(currentPlayerName);  // Mevcut oyuncu için
-        SetWarIsOnline(opponentName);       // Rakip oyuncu için
-        CheckPlayerStatus();
+        Debug.Log("War durumu odada güncelleniyor...");
+        PhotonNetwork.Disconnect();
+        GoToWarScene();
     }
 
-
-    // WarIsOnline bilgisini true olarak güncelleyen fonksiyon
-
-    public void SetWarIsOnline(string playerName)
+    // Oda bilgilerine war özelliğini opponentName ile ekliyoruz
+    private void SetWarInfo(string opponentName)
     {
-        foreach (var player in PhotonNetwork.PlayerList)
+        Debug.Log("SetWarInfo fonksiyonu çağrıldı. opponentName: " + opponentName);
+
+        ExitGames.Client.Photon.Hashtable warInfo = new ExitGames.Client.Photon.Hashtable
         {
-            // Oyuncunun CustomProperties içindeki PlayerName'e bakıyoruz
-            string playerCustomName = player.CustomProperties.ContainsKey("PlayerName") ? player.CustomProperties["PlayerName"].ToString() : null;
+            { "opponentName", opponentName }
+        };
 
-            Debug.Log("Comparing: " + playerCustomName + " with " + playerName);
+        // Oda bilgilerini güncelliyoruz
+        PhotonNetwork.CurrentRoom.SetCustomProperties(new ExitGames.Client.Photon.Hashtable
+        {
+            { "war", warInfo } // 'war' bilgisini güncelle
+        });
 
-            if (playerCustomName == playerName)
-            {
-                Debug.Log("Eşleşme bulundu!");
-
-                // Sadece eşleşen oyuncunun CustomProperties bilgisini güncelliyoruz
-                var customProperties = player.CustomProperties;
-
-                // WarIsOnline bilgisini güncelliyoruz
-                customProperties["warIsOnline"] = true;
-
-                // CustomProperties'i güncelliyoruz
-                player.SetCustomProperties(customProperties);
-
-                // Güncel bilgiyi debug ile yazdıralım
-                Debug.Log("Updated Player Info:");
-                Debug.Log("Player Name: " + playerCustomName);
-                Debug.Log("Updated War Is Online: " + customProperties["warIsOnline"]);
-
-                break;  // İşlem tamamlandı, döngüyü sonlandırıyoruz
-            }
-            // else kısmı gereksiz, çünkü sadece eşleşen oyuncu için işlem yapıyoruz
-        }
+        // Debug: War bilgisi güncellendi
+        Debug.Log("War bilgileri odada güncellendi. opponentName: " + opponentName);
     }
 
-    // Sürekli olarak kendi warIsOnline bilgisini sorgulayıp 7. ekrana geçiş yapmak için fonksiyon
-    public void CheckPlayerStatus()
-    {
-        // Mevcut oyuncunun warIsOnline bilgisini alıyoruz
-        bool warIsOnline = PhotonNetwork.LocalPlayer.CustomProperties.ContainsKey("warIsOnline")
-            ? (bool)PhotonNetwork.LocalPlayer.CustomProperties["warIsOnline"]
-            : false;
-
-        // Debug log ile warIsOnline değerini kontrol edelim
-        Debug.Log("Current Player's warIsOnline: " + warIsOnline);
-
-        // Eğer warIsOnline true ise 7. ekrana yönlendiriyoruz
-        if (warIsOnline == true)
-        {
-            Debug.Log("War is online. Redirecting to war scene...");
-            GoToWarScene(); // 7. ekrana yönlendirme fonksiyonu
-        }
-        else
-        {
-            Debug.Log("War is not online yet.");
-        }
-    }
-
-
-    // 7. Ekrana gitme fonksiyonus
+    // 7. Ekrana gitme fonksiyonu
     private void GoToWarScene()
     {
         try
         {
+            // Debug: Sahne yükleniyor
+            Debug.Log("7. sahneye yönlendiriliyor...");
+            
             // Sahne yükleniyor
             SceneManager.LoadScene(7); // 7. sahne
         }
@@ -128,7 +133,12 @@ public class NextGame : MonoBehaviourPunCallbacks
         }
     }
 
-
-
-
+    // Oda bilgileri güncellendiğinde tetiklenen callback fonksiyonu
+    public override void OnRoomPropertiesUpdate(ExitGames.Client.Photon.Hashtable propertiesThatChanged)
+    {
+        if (propertiesThatChanged.ContainsKey("war"))
+        {
+            Debug.Log("Oda bilgisi güncellendi. War bilgisi güncellenmiş.");
+        }
+    }
 }

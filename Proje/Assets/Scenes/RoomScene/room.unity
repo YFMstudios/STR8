@@ -2076,6 +2076,7 @@ GameObject:
   - component: {fileID: 948906208}
   - component: {fileID: 948906207}
   - component: {fileID: 948906206}
+  - component: {fileID: 948906209}
   m_Layer: 5
   m_Name: InputField (TMP)
   m_TagString: Untagged
@@ -2239,6 +2240,22 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 948906204}
   m_CullTransparentMesh: 1
+--- !u!114 &948906209
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 948906204}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: af82670bcf4fdfb498b43e3c36a0acc0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerNameInputField: {fileID: 948906206}
+  kingdomButton: {fileID: 0}
+  inputPanel: {fileID: 0}
+  enterButton: {fileID: 0}
 --- !u!1 &985562360
 GameObject:
   m_ObjectHideFlags: 0
