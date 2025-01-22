@@ -2,9 +2,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
-using Unity.Burst.Intrinsics;
-using Unity.VisualScripting;
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.UI;
 // OPTÝMÝZASYON KISMINDA KAYNAK AZALTMA,ÝADE ETME GÝBÝ ÝÞLEMLER METHODLAÞTIRILABÝLÝR.

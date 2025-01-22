@@ -104,8 +104,11 @@ public void hardButton()
     }
     public void quitGame()
     {
-        UnityEditor.EditorApplication.isPlaying = false;
-        Application.Quit();
+        #if UNITY_EDITOR
+         UnityEditor.EditorApplication.isPlaying = false; // Unity Editor'de oyunu durdur
+        #else
+        Application.Quit(); // Build alınmış oyunda çıkış yap
+        #endif
     }
 
     public void voiceButton()
